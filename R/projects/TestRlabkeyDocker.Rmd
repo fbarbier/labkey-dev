@@ -1,0 +1,20 @@
+---
+title : "Tests for Rlabkey from Docker"
+output: html_document
+---
+
+Connexion API-Labkey:
+
+```{r}
+library("Rlabkey")
+BaseURL <- "http://labkey:8080/labkey/"
+labkey.setDefaults(apiKey="apikey|2b7d7535c09380898649ac2513a9d4e5")
+Session <- getSession(BaseURL)
+lsSchemas(Session)
+```
+
+View available folders
+```{r}
+getSession(BaseURL)
+lsProjects(BaseURL)
+```

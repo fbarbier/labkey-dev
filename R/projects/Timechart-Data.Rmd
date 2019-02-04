@@ -1,0 +1,18 @@
+Scatter Plot: Blood Pressure
+----------------------------
+
+>The chart below shows data from all participants and represents CD4 count vs screening date
+
+```{r setup, echo=FALSE}
+# set global chunk options: images will be 7x5 inches 
+opts_chunk$set(fig.width=7, fig.height=5)
+library('ggplot2')
+```
+
+```{r graphic}
+print(labkey.data$ParticipantId)
+data <- labkey.data[which(labkey.data$participantid == "101344"), c("date","cd4")]
+ggplot(data, aes(as.Date(date), cd4)) + geom_line() +  scale_x_date(date_labels = "%b-%Y") + xlab("Screening Time") + ylab("Daily Views")
+print(data)
+
+```

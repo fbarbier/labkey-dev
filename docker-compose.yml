@@ -1,0 +1,79 @@
+version: "3"
+
+services:
+
+  labkey:
+    container_name: labkey
+    env_file: .env
+    stdin_open: false
+    tty: true
+    build:
+      context: ./labkey
+      dockerfile: labkey.dockerfile
+      args:
+        - LABKEY_VERSION=${LABKEY_VERSION}
+        - LABKEY_DIST=${LABKEY_DIST}
+        - LABKEY_XML=${LABKEY_XML}
+    ports:
+      - 8080:8080
+    networks:
+      - labkey
+    depends_on:
+          - postgresql
+    volumes:
+      -  ./labkey/data:/usr/local/labkey/files
+
+  postgresql:
+    container_name: labkey-postgresql-data
+    env_file: .env
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: "${DB_USER:-SA}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD:-labkeyDB}"
+      POSTGRES_DB: "${DB_NAME}"
+    ports:
+      - 5432:5432
+    networks:
+      - labkey
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: labkey-pgadmin4
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-pgadmin}
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - labkey
+    depends_on:
+      - postgresql
+    volumes:
+      - pgadmin-config:/root/.pgadmin
+
+  rstudio:
+    container_name: labkey-rstudio
+    build:
+      context: ./R
+      dockerfile: tidyverse.dockerfile
+    environment:
+      PASSWORD: ${RSTUDIO_PASSWORD:-letmein}
+        #default user is: rstudio
+    volumes:
+      - ./R:/home/rstudio
+    networks:
+      - labkey
+    ports:
+        - 8787:8787
+
+networks:
+  labkey:
+    driver: bridge
+
+volumes:
+  postgresql-data:
+  pgadmin-config:

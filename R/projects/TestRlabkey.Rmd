@@ -1,0 +1,55 @@
+---
+title : "Tests for Rlabkey"
+output: html_document
+---
+
+Connexion API-Labkey:
+![MyImg](./Images/Rlabkey-Connect.png "MyImg")
+
+```{r}
+library("Rlabkey")
+BaseURL <- "http://localhost:8080/labkey/"
+labkey.setDefaults(apiKey="YOUR-API-KEY")
+Session <- getSession(BaseURL)
+lsSchemas(Session)
+```
+
+View available folders
+```{r}
+getSession(BaseURL)
+lsProjects(BaseURL)
+```
+View available schemas in folder:
+```{r}
+labkey.getSchemas(BaseURL, "/Study-test/")
+```
+View available queries in schema :
+```{r}
+unique(labkey.getQueries(BaseURL, "/Study-test/", "study")$queryName)
+```
+
+Each assay design is combined to a query in the study schema  :
+![MyImg](./Images/Assay-List.png "MyImg")
+
+Recovering data :
+```{r}
+labkey.selectRows(BaseURL, "/Study-test/", "study", "Lab Results")[, c(1,2,5,6,7,8,9)]
+labkey.getQueries(BaseURL, "/Study-test/", "study")[which(labkey.getQueries(BaseURL, "/Study-test/", "study")$queryName=="Lab Results"),]
+```
+
+Insert data
+```{r}
+newRow <- data.frame(
+      ParticipantId=123004,
+      date="2008-06-27",
+      Start_Date = "2008-05-02",
+      Gender="M",
+      Country="USA")
+
+labkey.insertRows(BaseURL, "/Study-test/", "study", "Demographics", newRow)
+```
+
+
+
+
+
